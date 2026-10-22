@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevHouse - Developer Perumahan Modern</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light: #f8fafc;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* --- NAVBAR --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            /* Menggunakan gambar cluster perumahan sebagai background */
+            background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.7)), 
+                        url('https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/1_xQO2p4wPz8g7eP4j_jE87g.jpeg') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            color: var(--white);
+        }
+
+        .hero-content {
+            max-width: 650px;
+            margin-top: 60px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* --- SECTION KATALOG --- */
+        .section-title {
+            text-align: center;
+            margin: 5rem 0 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title p {
+            color: var(--gray);
+        }
+
+        .katalog-container {
+            padding: 0 5%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 5rem;
+        }
+
+        .rumah-card {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
+        }
+
+        .rumah-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .img-wrapper {
+            height: 220px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Menggunakan object-fit: cover untuk mensimulasikan crop gambar agar rapi */
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.5s;
+        }
+
+        .rumah-card:hover .img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-body h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-price {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .card-body p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            padding: 2.5rem;
+            position: relative;
+            transform: translateY(20px);
+            transition: 0.3s;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--gray);
+            background: none;
+            border: none;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .modal-content .btn {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 1rem;
+        }
+
+        /* --- TOAST NOTIFICATION --- */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transform: translateX(150%);
+            transition: 0.4s;
+            z-index: 3000;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.5rem; }
+            .hero { justify-content: center; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav>
+        <div class="logo">
+            🏘️ Dev<span>House</span>
+        </div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#katalog">Katalog Rumah</a>
+            <a href="#tentang">Tentang Kami</a>
+        </div>
+        <div class="nav-actions">
+            <!-- TOMBOL LOGIN DI KANAN ATAS -->
+            <button class="btn btn-outline" onclick="openModal('loginModal')">Login</button>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="hero" id="home">
+        <div class="hero-content">
+            <h1>Wujudkan Hunian Impian Keluarga Anda</h1>
+            <p>Developer perumahan terpercaya dengan desain modern, kualitas bangunan premium, dan lingkungan asri yang nyaman.</p>
+            <a href="#katalog" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">Lihat Katalog</a>
+        </div>
+    </header>
+
+    <!-- KATALOG SECTION -->
+    <section id="katalog">
+        <div class="section-title">
+            <h2>Tipe Rumah Unggulan</h2>
+            <p>Pilih desain yang paling sesuai dengan kebutuhan dan gaya hidup Anda.</p>
+        </div>
+        
+        <div class="katalog-container" id="katalogList">
+            <!-- Data Rumah akan di-render oleh JavaScript -->
+        </div>
+    </section>
+
+    <!-- MODAL LOGIN (DEMO) -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('loginModal')">&times;</button>
+            <h2>Login Admin</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" placeholder="Masukkan username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" placeholder="Masukkan password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Masuk</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL BOOKING -->
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('bookingModal')">&times;</button>
+            <h2>Form Booking Online</h2>
+            <form id="formBooking" onsubmit="handleBooking(event)">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="nama" placeholder="Masukkan nama" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp</label>
+                    <input type="tel" id="noHp" placeholder="0812xxxxxx" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipe Rumah yang Diminati</label>
+                    <select id="tipeRumah" required>
+                        <option value="">-- Pilih Tipe Rumah --</option>
+                        <option value="Tipe 36 Modern">Tipe 36 Modern</option>
+                        <option value="Tipe 45 Industrial">Tipe 45 Industrial</option>
+                        <option value="Tipe 54 Tropis">Tipe 54 Tropis</option>
+                        <option value="Tipe 70 Premium">Tipe 70 Premium</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pesan / Catatan (Opsional)</label>
+                    <textarea id="catatan" rows="3" placeholder="Contoh: Rencana survey hari Sabtu"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Kirim Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toast">Booking berhasil disimpan!</div>
+
+    <!-- SCRIPT -->
+    <script>
+        // ==========================================
+        // 1. DATA KATALOG RUMAH (MENGGUNAKAN GAMBAR USER)
+        // ==========================================
+        // Saya menggunakan URL gambar yang Anda lampirkan.
+        // Object-fit: cover di CSS memastikan gambar ter-crop dengan rapi.
+        const rumahData = [
+            {
+                id: 1,
+                nama: "Tipe 36 Modern Minimalis",
+                harga: "Rp 350 Juta",
+                deskripsi: "Desain modern dengan fasad kayu dan pencahayaan alami yang maksimal.",
+                gambar: "https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/1_xQO2p4wPz8g7eP4j_jE87g.jpeg" // Gambar 1 (Desain Rumah 36)
+            },
+            {
+                id: 2,
+                nama: "Tipe 45 Industrial 2 Lantai",
+                harga: "Rp 650 Juta",
+                deskripsi: "Tampilan elegan dengan sentuhan warna gelap dan kaca lebar, cocok untuk keluarga modern.",
+                gambar: "https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/2_xQO2p4wPz8g7eP4j_jE87g.jpeg" // Gambar 2 (Industrial)
+            },
+            {
+                id: 3,
+                nama: "Tipe 54 Tropis Kontemporer",
+                harga: "Rp 850 Juta",
+                deskripsi: "Atap hitam kontras dengan dinding putih bersih, memberikan kesan mewah dan asri.",
+                gambar: "https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/3_xQO2p4wPz8g7eP4j_jE87g.jpeg" // Gambar 3 (Tropis Putih)
+            },
+            {
+                id: 4,
+                nama: "Tipe 70 Premium",
+                harga: "Rp 1.2 Miliar",
+                deskripsi: "Fasad lebar dengan kombinasi batu alam dan kayu, menampilkan kemewahan yang natural.",
+                gambar: "https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/4_xQO2p4wPz8g7eP4j_jE87g.jpeg" // Gambar 4 (Kayu Accent)
+            }
+        ];
+
+        // ==========================================
+        // 2. RENDER KATALOG KE HTML
+        // ==========================================
+        const katalogList = document.getElementById('katalogList');
+
+        function renderKatalog() {
+            rumahData.forEach(rumah => {
+                const card = document.createElement('div');
+                card.className = 'rumah-card';
+                card.innerHTML = `
+                    <div class="img-wrapper">
+                        <img src="${rumah.gambar}" alt="${rumah.nama}">
+                    </div>
+                    <div class="card-body">
+                        <h3>${rumah.nama}</h3>
+                        <span class="card-price">${rumah.harga}</span>
+                        <p>${rumah.deskripsi}</p>
+                        <button class="btn btn-primary" onclick="openBooking('${rumah.nama}')">Booking Sekarang</button>
+                    </div>
+                `;
+                katalogList.appendChild(card);
+            });
+        }
+
+        // ==========================================
+        // 3. LOGIKA MODAL & BOOKING
+        // ==========================================
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Fungsi untuk membuka form booking dan otomatis memilih tipe rumah
+        function openBooking(namaRumah) {
+            openModal('bookingModal');
+            // Cari opsi yang cocok atau set value manual
+            const selectTipe = document.getElementById('tipeRumah');
+            for(let i = 0; i < selectTipe.options.length; i++) {
+                if(selectTipe.options[i].text.includes(namaRumah.split(' ')[1])) { // Match "36", "45", etc.
+                    selectTipe.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // Tutup modal jika klik di luar area modal
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.remove('active');
+            }
+        }
+
+        // ==========================================
+        // 4. DATABASE JSON (LOCALSTORAGE)
+        // ==========================================
+        
+        // Inisialisasi database JSON jika belum ada
+        if (!localStorage.getItem('devhouse_bookings')) {
+            localStorage.setItem('devhouse_bookings', JSON.stringify([]));
+        }
+
+        function handleBooking(event) {
+            event.preventDefault();
+
+            // Ambil data dari form
+            const nama = document.getElementById('nama').value;
+            const noHp = document.getElementById('noHp').value;
+            const tipeRumah = document.getElementById('tipeRumah').value;
+            const catatan = document.getElementById('catatan').value;
+
+            // Buat objek data baru
+            const newBooking = {
+                id: Date.now(), // ID unik berdasarkan timestamp
+                nama: nama,
+                noHp: noHp,
+                tipeRumah: tipeRumah,
+                catatan: catatan,
+                tanggal: new Date().toLocaleString('id-ID')
+            };
+
+            // Ambil data JSON lama, ubah ke array
+            const existingData = JSON.parse(localStorage.getItem('devhouse_bookings'));
+            
+            // Tambahkan data baru
+            existingData.push(newBooking);
+
+            // Simpan kembali ke JSON (LocalStorage)
+            localStorage.setItem('devhouse_bookings', JSON.stringify(existingData));
+
+            // Tampilkan notifikasi
+            showToast();
+
+            // Reset form & tutup modal
+            document.getElementById('formBooking').reset();
+            closeModal('bookingModal');
+            
+            // Tampilkan data di console untuk membuktikan JSON tersimpan
+            console.log("Data Tersimpan di JSON:", existingData);
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            alert('Fitur Login masih dalam tahap demo. Sistem autentikasi akan dihubungkan ke backend.');
+            closeModal('loginModal');
+        }
+
+        // Jalankan render katalog saat halaman dimuat
+        renderKatalog();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DevHouse — Sistem Informasi Developer Rumah (Demo)</title>
+<style>
+:root{
+  --bg:#f4f6fb; --panel:#fff; --text:#1a2233; --muted:#64748b;
+  --line:#e2e8f0; --primary:#2563eb; --primary-dark:#1d4ed8;
+  --green:#16a34a; --amber:#f59e0b; --red:#dc2626;
+  --sidebar:#0f172a; --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--text); font-size:14px; line-height:1.5;
+}
+button{font-family:inherit}
+h1,h2,h3,h4{margin:0 0 10px;line-height:1.25}
+h2{font-size:20px} h3{font-size:15px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.center{text-align:center}
+[hidden]{display:none !important}
+
+/* ---------- LOGIN ---------- */
+.login-wrap{
+  min-height:100vh; display:grid; place-items:center; padding:24px;
+  background:
+    radial-gradient(1000px 500px at 8% 8%, #dbeafe, transparent),
+    radial-gradient(900px 500px at 95% 92%, #e0e7ff, transparent), #eef2f8;
+}
+.login-card{
+  width:100%; max-width:410px; background:#fff; border-radius:20px;
+  padding:34px 30px; box-shadow:0 24px 60px rgba(15,23,42,.14);
+}
+.login-logo{
+  width:52px;height:52px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);font-size:26px;margin-bottom:16px;
+}
+.login-card h1{font-size:22px}
+.login-card label{display:block;margin-top:14px;font-weight:600;font-size:13px}
+input,select,textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+  font-family:inherit;font-size:14px;background:#fff;color:var(--text);outline:none;
+  transition:border .15s, box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.14)}
+input:disabled,select:disabled{background:#f1f5f9;color:var(--muted)}
+textarea{resize:vertical;min-height:70px}
+label{display:block;font-weight:600;font-size:13px;margin-bottom:12px}
+label input,label select,label textarea{margin-top:5px;font-weight:400}
+.err{color:var(--red);font-size:13px;margin-top:10px;min-height:18px;font-weight:600}
+.demo-accounts{margin-top:24px;border-top:1px dashed var(--line);padding-top:16px}
+.demo-accounts .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.demo-accounts button{
+  border:1px solid var(--line);background:#f8fafc;border-radius:10px;padding:8px 10px;
+  cursor:pointer;font-size:12.5px;text-align:left;transition:.15s;
+}
+.demo-accounts button:hover{border-color:var(--primary);background:#eff6ff}
+.demo-accounts b{display:block;font-size:12.5px}
+
+/* ---------- BUTTONS ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;justify-content:center;
+  padding:9px 15px;border-radius:10px;border:1px solid var(--line);
+  background:#fff;color:var(--text);font-weight:600;font-size:13px;cursor:pointer;
+  transition:.15s;white-space:nowrap;
+}
+.btn:hover{background:#f8fafc;border-color:#cbd5e1}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.primary:hover{background:var(--primary-dark)}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+.btn.danger:hover{background:#b91c1c}
+.btn.ghost{background:transparent}
+.btn.sm{padding:6px 11px;font-size:12px;border-radius:8px}
+.btn.block{width:100%;margin-top:20px;padding:11px}
+.icon-btn{
+  border:none;background:transparent;cursor:pointer;font-size:16px;
+  width:32px;height:32px;border-radius:8px;color:var(--muted);display:grid;place-items:center;
+}
+.icon-btn:hover{background:#f1f5f9;color:var(--text)}
+.icon-btn.light{color:#94a3b8}
+.icon-btn.light:hover{background:rgba(255,255,255,.12);color:#fff}
+
+/* ---------- APP SHELL ---------- */
+#appView{display:flex;min-height:100vh}
+#sidebar{
+  width:250px;background:var(--sidebar);color:#cbd5e1;display:flex;flex-direction:column;
+  position:fixed;top:0;bottom:0;left:0;z-index:60;transition:transform .25s ease;
+}
+.side-brand{display:flex;gap:11px;align-items:center;padding:20px 18px 16px}
+.logo{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:19px;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+}
+.brand-name{font-weight:700;color:#fff;font-size:15px}
+.brand-sub{font-size:11px;color:#64748b;letter-spacing:.4px;text-transform:uppercase}
+.side-nav{flex:1;padding:8px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:none;
+  background:transparent;color:#cbd5e1;border-radius:10px;cursor:pointer;
+  font-size:13.5px;font-weight:500;text-align:left;transition:.15s;position:relative;
+}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:var(--primary);color:#fff;font-weight:600}
+.nav-ic{font-size:15px;width:18px;text-align:center}
+.nav-badge{
+  margin-left:auto;background:var(--amber);color:#1a2233;font-size:10.5px;font-weight:800;
+  padding:1px 7px;border-radius:999px;
+}
+.nav-item.active .nav-badge{background:#fff;color:var(--primary)}
+.side-foot{padding:10px;border-top:1px solid rgba(255,255,255,.07)}
+.side-user{display:flex;align-items:center;gap:10px;padding:8px 6px}
+.avatar{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;font-weight:700;font-size:12.5px;
+  flex-shrink:0;
+}
+.side-user-info{flex:1;min-width:0}
+.side-user-info .nm{color:#fff;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-user-info .rl{font-size:11px;color:#64748b}
+
+.main{flex:1;margin-left:250px;display:flex;flex-direction:column;min-height:100vh}
+.mobile-bar{
+  display:none;align-items:center;gap:10px;padding:10px 14px;background:#fff;
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40;font-weight:700;
+}
+#pageContent{padding:24px 26px 48px;max-width:1400px;width:100%}
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.page-head h2{margin:0}
+
+/* ---------- CARDS & TABLES ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.card h3{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+.stat{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;
+  display:flex;gap:14px;align-items:center;
+}
+.stat .ic{
+  width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;
+  background:#eff6ff;flex-shrink:0;
+}
+.stat.amber .ic{background:#fffbeb}
+.stat .val{font-size:22px;font-weight:800;line-height:1.1}
+.stat .lbl{font-size:12px;color:var(--muted);font-weight:600}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.toolbar .left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.toolbar select{width:auto;min-width:180px;padding:8px 12px}
+.table-wrap{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{
+  text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--muted);font-weight:700;padding:9px 10px;border-bottom:2px solid var(--line);
+  white-space:nowrap;
+}
+td{padding:11px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tbody tr:hover{background:#f8fafc}
+td.actions{white-space:nowrap;text-align:right}
+td.actions .btn{margin-left:5px}
+
+/* ---------- BADGES & BARS ---------- */
+.badge{
+  display:inline-block;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:700;
+  background:#e2e8f0;color:#334155;white-space:nowrap;
+}
+.badge.green{background:#dcfce7;color:#15803d}
+.badge.amber{background:#fef3c7;color:#b45309}
+.badge.red{background:#fee2e2;color:#b91c1c}
+.badge.blue{background:#dbeafe;color:#1d4ed8}
+.barwrap{display:flex;align-items:center;gap:9px;min-width:130px}
+.bar{flex:1;height:8px;background:#eef2f7;border-radius:999px;overflow:hidden;min-width:60px}
+.bar-fill{height:100%;border-radius:999px;transition:width .4s ease}
+.bar-pct{font-size:11.5px;font-weight:700;color:var(--muted);width:38px;text-align:right}
+.proj-row{display:flex;align-items:center;gap:16px;padding:11px 0;border-bottom:1px solid #f1f5f9}
+.proj-row:last-child{border-bottom:none}
+.proj-info{flex:1;min-width:0}
+.proj-name{font-weight:700;font-size:13.5px}
+.proj-row .barwrap{width:210px;flex-shrink:0}
+
+/* ---------- MODAL ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;
+  display:grid;place-items:center;padding:20px;backdrop-filter:blur(3px);
+}
+.modal{
+  background:#fff;border-radius:16px;width:100%;max-width:460px;max-height:90vh;
+  display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(15,23,42,.3);
+  animation:pop .18s ease;
+}
+.modal.wide{max-width:620px}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
+.modal-head h3{margin:0;font-size:16px}
+.modal-body{padding:20px;overflow-y:auto}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line);background:#f8fafc;border-radius:0 0 16px 16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ---------- TOAST ---------- */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translate(-50%,80px);
+  background:#0f172a;color:#fff;padding:12px 20px;border-radius:12px;font-size:13.5px;
+  font-weight:600;z-index:200;opacity:0;transition:.3s;pointer-events:none;max-width:90vw;
+  box-shadow:0 12px 30px rgba(0,0,0,.3);
+}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.toast.error{background:var(--red)}
+.toast.success{background:var(--green)}
+
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty .big{font-size:34px;margin-bottom:8px}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:980px){
+  .grid2{grid-template-columns:1fr}
+}
+@media(max-width:860px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0);box-shadow:0 0 60px rgba(0,0,0,.5)}
+  .main{margin-left:0}
+  .mobile-bar{display:flex}
+  #pageContent{padding:16px 14px 48px}
+  .proj-row{flex-direction:column;align-items:stretch;gap:8px}
+  .proj-row .barwrap{width:100%}
+  .stat .val{font-size:19px}
+}
+</style>
+</head>
+<body>
+
+<div id="loginView"></div>
+
+<div id="appView" hidden>
+  <aside id="sidebar"></aside>
+  <div class="main">
+    <div class="mobile-bar">
+      <button class="icon-btn" data-act="toggle-sidebar" aria-label="Menu">☰</button>
+      <span>DevHouse</span>
+    </div>
+    <main id="pageContent"></main>
+  </div>
+</div>
+
+<div id="modalOverlay" class="overlay" hidden></div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================================================
+   UTIL
+   ========================================================= */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p => p + '_' + Math.random().toString(36).slice(2, 9);
+const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('id-ID',
+  {day:'2-digit', month:'short', year:'numeric'}) : '—';
+const fmtDateTime = iso => iso ? new Date(iso).toLocaleString('id-ID',
+  {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '—';
+const initials = n => String(n || '?').split(' ').filter(Boolean).slice(0,2)
+  .map(w => w[0].toUpperCase()).join('');
+const roleLabel = r => ({admin:'Administrator', supervisor:'Supervisor', pekerja:'Pekerja'})[r] || r;
+
+/* =========================================================
+   DATABASE (JSON di localStorage)
+   ========================================================= */
+const DB_KEY = 'devhouse_db_v1';
+const SESSION_KEY = 'devhouse_session_v1';
+
+let db = null;
+let session = null;
+let currentPage = 'dashboard';
+const ui = { unitFilter:'all', taskFilter:'all', progressFilter:'all', userFilter:'all' };
+
+function loadDB(){
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e){ return null; }
+}
+function saveDB(){
+  try { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+  catch(e){ toast('Penyimpanan penuh. Hapus beberapa foto progress.', 'error'); }
+}
+
+function seedDB(){
+  const now = Date.now(), day = 86400000;
+
+  const users = [
+    { id:'u1', name:'Administrator',   username:'admin',      password:'admin123',   role:'admin',      phone:'0812-0000-0001' },
+    { id:'u2', name:'Sari Wulandari',  username:'supervisor', password:'super123',   role:'supervisor', phone:'0812-0000-0002' },
+    { id:'u3', name:'Budi Santoso',    username:'pekerja',    password:'pekerja123', role:'pekerja',    phone:'0812-0000-0003' },
+    { id:'u4', name:'Andi Pratama',    username:'pekerja2',   password:'pekerja123', role:'pekerja',    phone:'0812-0000-0004' }
+  ];
+
+  const projects = [
+    { id:'prj1', name:'Griya Asri Residence', location:'Bekasi, Jawa Barat',  startDate:'2026-01-05', endDate:'2026-08-30', status:'Berjalan' },
+    { id:'prj2', name:'Cluster Melati',       location:'Bandung, Jawa Barat', startDate:'2026-03-01', endDate:'2026-10-15', status:'Berjalan' }
+  ];
+
+  const units = [
+    { id:'un1', projectId:'prj1', code:'A-01', type:'Tipe 36/72',  status:'Dibangun' },
+    { id:'un2', projectId:'prj1', code:'A-02', type:'Tipe 45/90',  status:'Dibangun' },
+    { id:'un3', projectId:'prj2', code:'M-01', type:'Tipe 54/105', status:'Dibangun' }
+  ];
+
+  const templates = [
+    { name:'Pekerjaan Pondasi',       weight:15 },
+    { name:'Struktur Beton',          weight:25 },
+    { name:'Dinding & Plesteran',     weight:20 },
+    { name:'Rangka & Penutup Atap',   weight:15 },
+    { name:'Instalasi MEP',           weight:10 },
+    { name:'Finishing & Pengecatan',  weight:15 }
+  ];
+
+  const assign = { un1:'u3', un2:'u4', un3:'u3' };
+  const tasks = [], byUnit = {};
+
+  units.forEach(u => {
+    byUnit[u.id] = templates.map((t, i) => ({
+      id: `tk_${u.id}_${i+1}`,
+      unitId: u.id,
+      name: t.name,
+      weight: t.weight,
+      assigneeId: assign[u.id]
+    }));
+    tasks.push(...byUnit[u.id]);
+  });
+
+  const progress = [];
+  const mk = (taskId, workerId, percent, status, daysAgo, notes) => {
+    const submittedAt = new Date(now - daysAgo * day).toISOString();
+    progress.push({
+      id: uid('pg'), taskId, workerId, percent, notes: notes || '',
+      photo: null, status, submittedAt,
+      approvedBy: status === 'approved' ? 'u2' : null,
+      approvedAt: status === 'approved'
+        ? new Date(now - daysAgo * day + 3600000).toISOString() : null,
+      rejectionReason: status === 'rejected' ? 'Foto progres kurang jelas / belum sesuai' : null
+    });
+  };
+
+  // A-01 hampir selesai
+  byUnit.un1.forEach((t, i) => mk(t.id, t.assigneeId, i < 5 ? 100 : 65, 'approved', 22 - i * 3, 'Sesuai spesifikasi gambar'));
+  // A-02 berjalan
+  byUnit.un2.forEach((t, i) => { if (i < 2) mk(t.id, t.assigneeId, 100, 'approved', 14 - i * 3, 'Selesai, QC lolos'); });
+  mk(byUnit.un2[2].id, 'u4', 40, 'submitted', 1, 'Pemasangan bata lantai 1, progres 40%');
+  // M-01 baru mulai
+  mk(byUnit.un3[0].id, 'u3', 100, 'approved', 9, 'Pondasi selesai');
+  mk(byUnit.un3[1].id, 'u3', 35,  'submitted', 2, 'Bekisting kolom lantai 1');
+  mk(byUnit.un3[2].id, 'u3', 15,  'rejected',  3, 'Baru mulai pemasangan bata');
+
+  return { users, projects, units, tasks, progress };
+}
+
+/* =========================================================
+   PERHITUNGAN PROGRESS
+   ========================================================= */
+function latestApproved(taskId){
+  const arr = db.progress.filter(p => p.taskId === taskId && p.status === 'approved');
+  if (!arr.length) return 0;
+  arr.sort((a, b) => new Date(b.approvedAt || b.submittedAt) - new Date(a.approvedAt || a.submittedAt));
+  return arr[0].percent;
+}
+function unitProgress(unitId){
+  const tasks = db.tasks.filter(t => t.unitId === unitId);
+  const totalWeight = tasks.reduce((s, t) => s + Number(t.weight || 0), 0);
+  if (!totalWeight) return 0;
+  const sum = tasks.reduce((s, t) => s + Number(t.weight || 0) * latestApproved(t.id), 0);
+  return sum / totalWeight;
+}
+function projectProgress(projectId){
+  const units = db.units.filter(u => u.projectId === projectId);
+  if (!units.length) return 0;
+  return units.reduce((s, u) => s + unitProgress(u.id), 0) / units.length;
+}
+function pendingCount(){
+  return db.progress.filter(p => p.status === 'submitted').length;
+}
+
+/* =========================================================
+   KOMPONEN KECIL
+   ========================================================= */
+function bar(pct){
+  const p = Math.max(0, Math.min(100, Number(pct) || 0));
+  const color = p >= 100 ? 'var(--green)' : p >= 50 ? 'var(--primary)' : 'var(--amber)';
+  return `<div class="barwrap">
+    <div class="bar"><div class="bar-fill" style="width:${p}%;background:${color}"></div></div>
+    <span class="bar-pct">${p.toFixed(0)}%</span>
+  </div>`;
+}
+function badgeProgress(s){
+  const map = {
+    submitted: ['⏳ Menunggu', 'amber'],
+    approved:  ['✅ Disetujui', 'green'],
+    rejected:  ['✕ Ditolak',   'red']
+  };
+  const [label, cls] = map[s] || [s, ''];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+function badgeProject(s){
+  const cls = s === 'Selesai' ? 'green' : s === 'Perencanaan' ? 'blue' : 'amber';
+  return `<span class="badge ${cls}">${esc(s)}</span>`;
+}
+function badgeRole(r){
+  const cls = r === 'admin' ? 'red' : r === 'supervisor' ? 'blue' : '';
+  return `<span class="badge ${cls}">${roleLabel(r)}</span>`;
+}
+function selectOpts(items, selected, valueKey = 'id', labelKey = 'name', placeholder){
+  const head = placeholder ? `<option value="">${esc(placeholder)}</option>` : '';
+  return head + items.map(i => {
+    const v = typeof i === 'string' ? i : i[valueKey];
+    const l = typeof i === 'string' ? i : i[labelKey];
+    return `<option value="${esc(v)}" ${String(v) === String(selected) ? 'selected' : ''}>${esc(l)}</option>`;
+  }).join('');
+}
+function toast(msg, type = 'success'){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { t.className = 'toast'; }, 2800);
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+function openModal({ title, body, submitLabel = 'Simpan', onSubmit, wide = false,
+                     submitClass = 'primary', hideSubmit = false, onMount = null }){
+  const ov = $('#modalOverlay');
+  ov.innerHTML = `
+    <div class="modal ${wide ? 'wide' : ''}" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3>${esc(title)}</h3>
+        <button type="button" class="icon-btn" data-close aria-label="Tutup">✕</button>
+      </div>
+      <form id="modalForm">
+        <div class="modal-body">${body}</div>
+        <div class="modal-foot">
+          <button type="button" class="btn ghost" data-close>Batal</button>
+          ${hideSubmit ? '' : `<button type="submit" class="btn ${submitClass}">${esc(submitLabel)}</button>`}
+        </div>
+      </form>
+    </div>`;
+  ov.hidden = false;
+
+  ov.querySelectorAll('[data-close]').forEach(b => b.onclick = closeModal);
+  ov.querySelector('#modalForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const form = e.target;
+    const data = Object.fromEntries(new FormData(form).entries());
+    const res = await onSubmit(data, form);
+    if (res !== false) closeModal();
+  });
+
+  if (onMount) onMount(ov);
+  const first = ov.querySelector('input:not([type=hidden]),select,textarea');
+  if (first) setTimeout(() => first.focus(), 60);
+}
+function closeModal(){
+  const ov = $('#modalOverlay');
+  ov.hidden = true;
+  ov.innerHTML = '';
+}
+$('#modalOverlay').addEventListener('click', e => { if (e.target.id === 'modalOverlay') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function confirmModal(message, onYes, label = 'Ya, Hapus'){
+  openModal({
+    title: 'Konfirmasi',
+    body: `<p style="margin:0">${esc(message)}</p>`,
+    submitLabel: label,
+    submitClass: 'danger',
+    onSubmit: () => { onYes(); }
+  });
+}
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+function renderLogin(){
+  $('#loginView').hidden = false;
+  $('#appView').hidden = true;
+  $('#loginView').innerHTML = `
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="login-logo">🏘️</div>
+        <h1>Masuk ke DevHouse</h1>
+        <p class="muted small" style="margin:0">Sistem Informasi Developer Rumah &amp; Monitoring Progress</p>
+
+        <form id="loginForm">
+          <label>Username
+            <input name="username" autocomplete="username" required placeholder="admin">
+          </label>
+          <label>Password
+            <input name="password" type="password" autocomplete="current-password" required placeholder="••••••••">
+          </label>
+          <button class="btn primary block" type="submit">Masuk</button>
+          <div class="err" id="loginErr"></div>
+        </form>
+
+        <div class="demo-accounts">
+          <p class="muted small" style="margin:0 0 4px">Akun demo — klik untuk mengisi otomatis:</p>
+          <div class="grid">
+            <button data-u="admin" data-p="admin123"><b>Admin</b><span class="muted">admin / admin123</span></button>
+            <button data-u="supervisor" data-p="super123"><b>Supervisor</b><span class="muted">supervisor / super123</span></button>
+            <button data-u="pekerja" data-p="pekerja123"><b>Pekerja (Budi)</b><span class="muted">pekerja / pekerja123</span></button>
+            <button data-u="pekerja2" data-p="pekerja123"><b>Pekerja (Andi)</b><span class="muted">pekerja2 / pekerja123</span></button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  $$('.demo-accounts button').forEach(b => {
+    b.onclick = () => {
+      $('#loginForm').username.value = b.dataset.u;
+      $('#loginForm').password.value = b.dataset.p;
+      $('#loginErr').textContent = '';
+    };
+  });
+
+  $('#loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target;
+    const user = db.users.find(u =>
+      u.username.toLowerCase() === f.username.value.trim().toLowerCase() &&
+      u.password === f.password.value);
+    if (!user){
+      $('#loginErr').textContent = 'Username atau password salah.';
+      return;
+    }
+    session = { userId: user.id };
+    sessionStorage.setItem(SESSION_KEY, user.id);
+    currentPage = 'dashboard';
+    renderApp();
+    toast(`Selamat datang, ${user.name.split(' ')[0]}!`);
+  });
+}
+
+function logout(){
+  session = null;
+  sessionStorage.removeItem(SESSION_KEY);
+  closeModal();
+  renderLogin();
+}
+
+function currentUser(){
+  return db.users.find(u => u.id === session?.userId) || null;
+}
+
+/* =========================================================
+   NAVIGASI
+   ========================================================= */
+const NAV = [
+  { id:'dashboard', label:'Dashboard',      icon:'📊', roles:['admin','supervisor','pekerja'] },
+  { id:'projects',  label:'Proyek',         icon:'🏗️', roles:['admin','supervisor'] },
+  { id:'units',     label:'Unit Rumah',     icon:'🏠', roles:['admin','supervisor'] },
+  { id:'tasks',     label:'Pekerjaan (WBS)',icon:'🧱', roles:['admin','supervisor','pekerja'] },
+  { id:'progress',  label:'Progress',       icon:'📸', roles:['admin','supervisor','pekerja'] },
+  { id:'approvals', label:'Approval',       icon:'✅', roles:['admin','supervisor'] },
+  { id:'users',     label:'Pengguna',       icon:'👥', roles:['admin'] }
+];
+
+function renderApp(){
+  $('#loginView').hidden = true;
+  $('#appView').hidden = false;
+  renderPage();
+}
+
+function renderSidebar(){
+  const u = currentUser();
+  if (!u) return;
+  const items = NAV.filter(n => n.roles.includes(u.role));
+  const pend = pendingCount();
+
+  $('#sidebar').innerHTML = `
+    <div class="side-brand">
+      <div class="logo">🏘️</div>
+      <div>
+        <div class="brand-name">DevHouse</div>
+        <div class="brand-sub">Developer System</div>
+      </div>
+    </div>
+    <nav class="side-nav">
+      ${items.map(n => `
+        <button class="nav-item ${currentPage === n.id ? 'active' : ''}"
+                data-act="nav" data-id="${n.id}">
+          <span class="nav-ic">${n.icon}</span>${n.label}
+          ${n.id === 'approvals' && pend ? `<span class="nav-badge">${pend}</span>` : ''}
+        </button>`).join('')}
+    </nav>
+    <div class="side-foot">
+      ${u.role === 'admin' ? `<button class="nav-item" data-act="reset-db"><span class="nav-ic">↺</span>Reset Data Demo</button>` : ''}
+      <div class="side-user">
+        <div class="avatar">${initials(u.name)}</div>
+        <div class="side-user-info">
+          <div class="nm">${esc(u.name)}</div>
+          <div class="rl">${roleLabel(u.role)}</div>
+        </div>
+        <button class="icon-btn light" data-act="logout" title="Keluar">⎋</button>
+      </div>
+    </div>`;
+}
+
+const PAGES = {
+  dashboard: pageDashboard,
+  projects:  pageProjects,
+  units:     pageUnits,
+  tasks:     pageTasks,
+  progress:  pageProgress,
+  approvals: pageApprovals,
+  users:     pageUsers
+};
+
+function renderPage(){
+  const u = currentUser();
+  if (!u){ renderLogin(); return; }
+  const allowed = NAV.filter(n => n.roles.includes(u.role)).map(n => n.id);
+  if (!allowed.includes(currentPage)) currentPage = 'dashboard';
+
+  renderSidebar();
+  const meta = NAV.find(n => n.id === currentPage);
+  $('#pageContent').innerHTML = `
+    <div class="page-head">
+      <div>
+        <h2>${meta.icon} ${meta.label}</h2>
+        <div class="muted small">${new Date().toLocaleDateString('id-ID',
+          {weekday:'long', day:'numeric', month:'long', year:'numeric'})}</div>
+      </div>
+    </div>
+    ${PAGES[currentPage]()}`;
+}
+
+/* =========================================================
+   HALAMAN: DASHBOARD
+   ========================================================= */
+function pageDashboard(){
+  const u = currentUser();
+  return u.role === 'pekerja' ? dashboardPekerja(u) : dashboardManager();
+}
+
+function statCard(icon, label, value, cls = ''){
+  return `<div class="stat ${cls}">
+    <div class="ic">${icon}</div>
+    <div><div class="val">${value}</div><div class="lbl">${label}</div></div>
+  </div>`;
+}
+
+function dashboardManager(){
+  const pending = pendingCount();
+  const projRows = db.projects.map(p => {
+    const jmlUnit = db.units.filter(x => x.projectId === p.id).length;
+    return `<div class="proj-row">
+      <div class="proj-info">
+        <div class="proj-name">${esc(p.name)}</div>
+        <div class="muted small">${esc(p.location)} • ${jmlUnit} unit • ${esc(p.status)}</div>
+      </div>
+      ${bar(projectProgress(p.id))}
+    </div>`;
+  }).join('') || '<p class="muted">Belum ada proyek.</p>';
+
+  const pendingRows = db.progress.filter(p => p.status === 'submitted')
+    .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
+    .slice(0, 5)
+    .map(p => {
+      const t = db.tasks.find(x => x.id === p.taskId);
+      const unit = t && db.units.find(x => x.id === t.unitId);
+      const w = db.users.find(x => x.id === p.workerId);
+      return `<tr>
+        <td><strong>${esc(t ? t.name : '—')}</strong>
+            <div class="muted small">${esc(unit ? unit.code : '')}</div></td>
+        <td>${esc(w ? w.name : '—')}</td>
+        <td><strong>${p.percent}%</strong></td>
+        <td class="muted small">${fmtDateTime(p.submittedAt)}</td>
+      </tr>`;
+    }).join('');
+
+  return `
+    <div class="stats">
+      ${statCard('🏗️', 'Total Proyek', db.projects.length)}
+      ${statCard('🏠', 'Unit Rumah', db.units.length)}
+      ${statCard('🧱', 'Item Pekerjaan', db.tasks.length)}
+      ${statCard('⏳', 'Menunggu Approval', pending, 'amber')}
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>📈 Progress per Proyek</h3>
+        ${projRows}
+      </div>
+      <div class="card">
+        <h3>⏳ Menunggu Approval</h3>
+        ${pendingRows ? `
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Pekerjaan</th><th>Pekerja</th><th>Progress</th><th>Waktu</th></tr></thead>
+            <tbody>${pendingRows}</tbody>
+          </table>
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn primary sm" data-act="nav" data-id="approvals">Tinjau Semua</button>
+        </div>` : '<div class="empty"><div class="big">🎉</div>Tidak ada yang menunggu approval.</div>'}
+      </div>
+    </div>`;
+}
+
+function dashboardPekerja(u){
+  const myTasks = db.tasks.filter(t => t.assigneeId === u.id);
+  const myProg = db.progress.filter(p => p.workerId === u.id);
+  const done = myTasks.filter(t => latestApproved(t.id) >= 100).length;
+  const waiting = myProg.filter(p => p.status === 'submitted').length;
+  const rejected = myProg.filter(p => p.status === 'rejected').length;
+
+  const rows = myTasks.map(t => {
+    const unit = db.units.find(x => x.id === t.unitId);
+    const proj = unit && db.projects.find(p => p.id === unit.projectId);
+    const pct = latestApproved(t.id);
+    return `<tr>
+      <td><strong>${esc(t.name)}</strong>
+          <div class="muted small">${esc(proj ? proj.name : '')} • ${esc(unit ? unit.code : '')}</div></td>
+      <td>${t.weight}%</td>
+      <td>${bar(pct)}</td>
+      <td>${pct >= 100 ? '<span class="badge green">Selesai</span>' : '<span class="badge amber">Berjalan</span>'}</td>
+      <td class="actions">${pct >= 100 ? '' :
+        `<button class="btn sm primary" data-act="input-progress" data-id="${t.id}">+ Input</button>`}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="stats">
+      ${statCard('🧱', 'Tugas Saya', myTasks.length)}
+      ${statCard('✅', 'Selesai (100%)', done)}
+      ${statCard('⏳', 'Menunggu Verifikasi', waiting, 'amber')}
+      ${statCard('✕', 'Ditolak', rejected)}
+    </div>
+
+    <div class="card">
+      <h3>🧱 Tugas Saya</h3>
+      ${rows ? `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pekerjaan</th><th>Bobot</th><th>Progress</th><th>Status</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>` : '<div class="empty"><div class="big">📭</div>Belum ada tugas yang diberikan.</div>'}
+    </div>`;
+}
+
+/* =========================================================
+   HALAMAN: PROYEK
+   ========================================================= */
+function pageProjects(){
+  const isAdmin = currentUser().role === 'admin';
+  const rows = db.projects.map(p => {
+    const units = db.units.filter(u => u.projectId === p.id);
+    return `<tr>
+      <td><strong>${esc(p.name)}</strong><div class="muted small">${esc(p.location)}</div></td>
+      <td>${units.length} unit</td>
+      <td style="min-width:160px">${bar(projectProgress(p.id))}</td>
+      <td class="muted small">${fmtDate(p.startDate)}<br>${fmtDate(p.endDate)}</td>
+      <td>${badgeProject(p.status)}</td>
+      <td class="actions">
+        ${isAdmin ? `<button class="btn sm" data-act="edit-project" data-id="${p.id}">Edit</button>
+        <button class="btn sm danger" data-act="del-project" data-id="${p.id}">Hapus</button>` : '—'}
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="toolbar">
+      <div class="left muted">${db.projects.length} proyek terdaftar</div>
+      ${isAdmin ? `<button class="btn primary" data-act="add-project">+ Tambah Proyek</button>` : ''}
+    </div>
+    <div class="card">
+      ${rows ? `<div class="table-wrap"><table>
+        <thead><tr><th>Proyek</th><th>Unit</th><th>Progress</th><th>Periode</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`
+      : '<div class="empty"><div class="big">🏗️</div>Belum ada proyek.</div>'}
+    </div>`;
+}
+
+/* =========================================================
+   HALAMAN: UNIT
+   ========================================================= */
+function pageUnits(){
+  const isAdmin = currentUser().role === 'admin';
+  const f = ui.unitFilter;
+  const list = db.units.filter(u => f === 'all' || u.projectId === f);
+
+  const rows = list.map(u => {
+    const proj = db.projects.find(p => p.id === u.projectId);
+    const jmlTask = db.tasks.filter(t => t.unitId === u.id).length;
+    return `<tr>
+      <td><strong>${esc(u.code)}</strong><div class="muted small">${esc(u.type)}</div></td>
+      <td>${esc(proj ? proj.name : '—')}</td>
+      <td>${jmlTask} item</td>
+      <td style="min-width:160px">${bar(unitProgress(u.id))}</td>
+      <td><span class="badge">${esc(u.status)}</span></td>
+      <td class="actions">
+        ${isAdmin ? `<button class="btn sm" data-act="edit-unit" data-id="${u.id}">Edit</button>
+        <button class="btn sm danger" data-act="del-unit" data-id="${u.id}">Hapus</button>` : '—'}
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="toolbar">
+      <div class="left">
+        <select data-filter="unitFilter">
+          <option value="all" ${f === 'all' ? 'selected' : ''}>Semua Proyek</option>
+          ${db.projects.map(p => `<option value="${p.id}" ${f === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}
+        </select>
+        <span class="muted">${list.length} unit</span>
+      </div>
+      ${isAdmin ? `<button class="btn primary" data-act="add-unit">+ Tambah Unit</button>` : ''}
+    </div>
+    <div class="card">
+      ${rows ? `<div class="table-wrap"><table>
+        <thead><tr><th>Unit</th><th>Proyek</th><th>Item Pekerjaan</th><th>Progress</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`
+      : '<div class="empty"><div class="big">🏠</div>Belum ada unit rumah.</div>'}
+    </div>`;
+}
+
+/* =========================================================
+   HALAMAN: PEKERJAAN (WBS)
+   ========================================================= */
+function pageTasks(){
+  const u = currentUser();
+  const isWorker = u.role === 'pekerja';
+  const isAdmin = u.role === 'admin';
+  const f = ui.taskFilter;
+
+  let list = isWorker ? db.tasks.filter(t => t.assigneeId === u.id) : db.tasks.slice();
+  if (f !== 'all') list = list.filter(t => t.unitId === f);
+
+  const unitOpts = db.units.map(un => {
+    const p = db.projects.find(x => x.id === un.projectId);
+    return { id: un.id, name: `${p ? p.name : ''} • ${un.code}` };
+  });
+
+  const rows = list.map(t => {
+    const unit = db.units.find(x => x.id === t.unitId);
+    const proj = unit && db.projects.find(p => p.id === unit.projectId);
+    const assignee = db.users.find(x => x.id === t.assigneeId);
+    const pct = latestApproved(t.id);
+    return `<tr>
+      <td><strong>${esc(t.name)}</strong>
+          <div class="muted small">${esc(proj ? proj.name : '')} • ${esc(unit ? unit.code : '')}</div></td>
+      <td>${t.weight}%</td>
+      <td>${esc(assignee ? assignee.name : '—')}</td>
+      <td style="min-width:150px">${bar(pct)}</td>
+      <td class="actions">
+        ${isWorker
+          ? (pct >= 100 ? '<span class="badge green">Selesai</span>'
+                        : `<button class="btn sm primary" data-act="input-progress" data-id="${t.id}">+ Input</button>`)
+          : (isAdmin
+              ? `<button class="btn sm" data-act="edit-task" data-id="${t.id}">Edit</button>
+                 <button class="btn sm danger" data-act="del-task" data-id="${t.id}">Hapus</button>`
+              : `${bar(pct)}`)}
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="toolbar">
+      <div class="left">
+        ${!isWorker ? `<select data-filter="taskFilter">
+          <option value="all" ${f === 'all' ? 'selected' : ''}>Semua Unit</option>
+          ${unitOpts.map(o => `<option value="${o.id}" ${f === o.id ? 'selected' : ''}>${esc(o.name)}</option>`).join('')}
+        </select>` : '<span class="muted">Daftar pekerjaan yang ditugaskan kepada Anda</span>'}
+        <span class="muted">${list.length} item</span>
+      </div>
+      ${isAdmin ? `<button class="btn primary" data-act="add-task">+ Tambah Pekerjaan</button>` : ''}
+    </div>
+    <div class="card">
+      ${rows ? `<div class="table-wrap"><table>
+        <thead><tr><th>Pekerjaan</th><th>Bobot</th><th>Penanggung Jawab</th><th>Progress</th><th></th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`
+      : '<div class="empty"><div class="big">🧱</div>Belum ada item pekerjaan.</div>'}
+    </div>`;
+}
+
+/* =========================================================
+   HALAMAN: PROGRESS
+   ========================================================= */
+function pageProgress(){
+  const u = currentUser();
+  const isWorker = u.role === 'pekerja';
+  const canApprove = u.role === 'admin' || u.role === 'supervisor';
+  const f = ui.progressFilter;
+
+  let list = db.progress.slice();
+  if (isWorker) list = list.filter(p => p.workerId === u.id);
+  if (f !== 'all') list = list.filter(p => p.status === f);
+  list.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
+  const rows = list.map(p => {
+    const t = db.tasks.find(x => x.id === p.taskId);
+    const unit = t && db.units.find(x => x.id === t.unitId);
+    const proj = unit && db.projects.find(x => x.id === unit.projectId);
+    const w = db.users.find(x => x.id === p.workerId);
+    return `<tr>
+      <td><strong>${esc(t ? t.name : '—')}</strong>
+          <div class="muted small">${esc(proj ? proj.name : '')} • ${esc(unit ? unit.code : '')}</div></td>
+      ${isWorker ? '' : `<td>${esc(w ? w.name : '—')}</td>`}
+      <td><strong>${p.percent}%</strong></td>
+      <td>${badgeProgress(p.status)}</td>
+      <td class="muted small">${fmtDateTime(p.submittedAt)}
+          ${p.rejectionReason ? `<div style="color:var(--red)">${esc(p.rejectionReason)}</div>` : ''}</td>
+      <td>${p.photo ? `<button class="btn sm" data-act="view-photo" data-id="${p.id}">📷 Lihat</button>` : '<span class="muted small">—</span>'}</td>
+      <td class="actions">
+        ${canApprove && p.status === 'submitted'
+          ? `<button class="btn sm primary" data-act="approve" data-id="${p.id}">Setujui</button>
+             <button class="btn sm danger" data-act="reject" data-id="${p.id}">Tolak</button>`
+          : ''}
+        ${canApprove && p.status !== 'submitted'
+          ? `<button class="btn sm danger" data-act="del-progress" data-id="${p.id}">Hapus</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="toolbar">
+      <div class="left">
+        <select data-filter="progressFilter">
+          <option value="all" ${f === 'all' ? 'selected' : ''}>Semua Status</option>
+          <option value="submitted" ${f === 'submitted' ? 'selected' : ''}>Menunggu</option>
+          <option value="approved" ${f === 'approved' ? 'selected' : ''}>Disetujui</option>
+          <option value="rejected" ${f === 'rejected' ? 'selected' : ''}>Ditolak</option>
+        </select>
+        <span class="muted">${list.length} laporan</span>
+      </div>
+      ${isWorker ? `<button class="btn primary" data-act="input-progress">+ Input Progress</button>` : ''}
+    </div>
+    <div class="card">
+      ${rows ? `<div class="table-wrap"><table>
+        <thead><tr>
+          <th>Pekerjaan</th>${isWorker ? '' : '<th>Pekerja</th>'}
+          <th>Progress</th><th>Status</th><th>Waktu</th><th>Foto</th><th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody></table></div>`
+      : '<div class="empty"><div class="big">📸</div>Belum ada laporan progress.</div>'}
+    </div>`;
+}
+
+/* =========================================================
+   HALAMAN: APPROVAL
+   ========================================================= */
+function pageApprovals(){
+  const list = db.progress.filter(p => p.status === 'submitted')
+    .sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
+
+  const rows = list.map(p => {
+    const t = db.tasks.find(x => x.id === p.taskId);
+    const unit = t && db.units.find(x => x.id === t.unitId);
+    const proj = unit && db.projects.find(x => x.id === unit.projectId);
+    const w = db.users.find(x => x.id === p.workerId);
+    const current = t ? latestApproved(t.id) : 0;
+    return `<tr>
+      <td><strong>${esc(t ? t.name : '—')}</strong>
+          <div class="muted small">${esc(proj ? proj.name : '')} • ${esc(unit ? unit.code : '')}</div></td>
+      <td>${esc(w ? w.name : '—')}<div class="muted small">${esc(w ? w.phone : '')}</div></td>
+      <td>${current}% → <strong>${p.percent}%</strong></td>
+      <td class="muted small">${fmtDateTime(p.submittedAt)}</td>
+      <td>${p.photo ? `<button class="btn sm" data-act="view-photo" data-id="${p.id}">📷 Foto</button>` : '<span class="muted small">—</span>'}</td>
+      <td>${esc(p.notes || '—')}</td>
+      <td class="actions">
+        <button class="btn sm primary" data-act="approve" data-id="${p.id}">Setujui</button>
+        <button class="btn sm danger" data-act="reject" data-id="${p.id}">Tolak</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="toolbar">
+      <div class="left muted">${list.length} laporan menunggu verifikasi</div>
+    </div>
+    <div class="card">
+      ${rows ? `<div class="table-wrap"><table>
+        <thead><tr><th>Pekerjaan</th><th>Pekerja</th><th>Progress</th><th>Dikirim</th><th>Foto</th><th>Catatan</th><th></th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`
+      : '<div class="empty"><div class="big">🎉</div>Semua laporan sudah diverifikasi.</div>'}
+    </div>`;
+}
+
+/* =========================================================
+   HALAMAN: PENGGUNA
+   ========================================================= */
+function pageUsers(){
+  const rows = db.users.map(u => {
+    const jmlTask = db.tasks.filter(t => t.assigneeId === u.id).length;
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar">${initials(u.name)}</div>
+        <div><strong>${esc(u.name)}</strong><div class="muted small">@${esc(u.username)}</div></div>
+      </div></td>
+      <td>${badgeRole(u.role)}</td>
+      <td>${esc(u.phone || '—')}</td>
+      <td>${jmlTask} pekerjaan</td>
+      <td class="actions">
+        <button class="btn sm" data-act="edit-user" data-id="${u.id}">Edit</button>
+        <button class="btn sm danger" data-act="del-user" data-id="${u.id}">Hapus</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="toolbar">
+      <div class="left muted">${db.users.length} pengguna</div>
+      <button class="btn primary" data-act="add-user">+ Tambah Pengguna</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Nama</th><th>Role</th><th>Telepon</th><th>Beban Tugas</th><th></th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+    </div>`;
+}
+
+/* =========================================================
+   FORM-FORM (CRUD)
+   ========================================================= */
+function projectForm(p){
+  const isEdit = !!p;
+  openModal({
+    title: isEdit ? 'Edit Proyek' : 'Tambah Proyek',
+    body: `
+      <label>Nama Proyek<input name="name" required value="${esc(p?.name || '')}" placeholder="Griya Asri Residence"></label>
+      <label>Lokasi<input name="location" required value="${esc(p?.location || '')}" placeholder="Bekasi, Jawa Barat"></label>
+      <div class="row2">
+        <label>Tanggal Mulai<input type="date" name="startDate" required value="${p?.startDate || ''}"></label>
+        <label>Tanggal Selesai<input type="date" name="endDate" required value="${p?.endDate || ''}"></label>
+      </div>
+      <label>Status<select name="status">
+        ${selectOpts(['Perencanaan','Berjalan','Selesai'], p?.status || 'Berjalan')}
+      </select></label>`,
+    onSubmit: data => {
+      if (isEdit) Object.assign(p, data);
+      else db.projects.push({ id: uid('prj'), ...data });
+      saveDB(); renderPage();
+      toast(isEdit ? 'Proyek diperbarui' : 'Proyek ditambahkan');
+    }
+  });
+}
+
+function unitForm(u){
+  const isEdit = !!u;
+  if (!db.projects.length){ toast('Buat proyek terlebih dahulu', 'error'); return; }
+  openModal({
+    title: isEdit ? 'Edit Unit Rumah' : 'Tambah Unit Rumah',
+    body: `
+      <label>Proyek<select name="projectId" required>
+        ${selectOpts(db.projects, u?.projectId || db.projects[0].id)}
+      </select></label>
+      <div class="row2">
+        <label>Kode Unit<input name="code" required value="${esc(u?.code || '')}" placeholder="A-01"></label>
+        <label>Tipe Rumah<input name="type" required value="${esc(u?.type || '')}" placeholder="Tipe 45/90"></label>
+      </div>
+      <label>Status<select name="status">
+        ${selectOpts(['Dibangun','Selesai','Terjual'], u?.status || 'Dibangun')}
+      </select></label>`,
+    onSubmit: data => {
+      if (isEdit) Object.assign(u, data);
+      else db.units.push({ id: uid('un'), ...data });
+      saveDB(); renderPage();
+      toast(isEdit ? 'Unit diperbarui' : 'Unit ditambahkan');
+    }
+  });
+}
+
+function taskForm(t){
+  const isEdit = !!t;
+  if (!db.units.length){ toast('Buat unit rumah terlebih dahulu', 'error'); return; }
+  const workers = db.users.filter(x => x.role === 'pekerja');
+
+  openModal({
+    title: isEdit ? 'Edit Pekerjaan' : 'Tambah Pekerjaan (WBS)',
+    body: `
+      <label>Unit Rumah<select name="unitId" required>
+        ${selectOpts(
+          db.units.map(un => {
+            const p = db.projects.find(x => x.id === un.projectId);
+            return { id: un.id, name: `${p ? p.name : ''} • ${un.code} (${un.type})` };
+          }),
+          t?.unitId || db.units[0].id
+        )}
+      </select></label>
+      <label>Nama Pekerjaan<input name="name" required value="${esc(t?.name || '')}" placeholder="Pekerjaan Pondasi"></label>
+      <div class="row2">
+        <label>Bobot (%)<input type="number" name="weight" min="1" max="100" step="1" required value="${t?.weight || 10}"></label>
+        <label>Penanggung Jawab<select name="assigneeId" required>
+          ${selectOpts(workers, t?.assigneeId || workers[0]?.id || '')}
+        </select></label>
+      </div>
+      <p class="muted small" style="margin:0">Total bobot seluruh pekerjaan dalam satu unit sebaiknya 100%.</p>`,
+    onSubmit: data => {
+      const payload = { ...data, weight: Number(data.weight) };
+      if (isEdit) Object.assign(t, payload);
+      else db.tasks.push({ id: uid('tk'), ...payload });
+      saveDB(); renderPage();
+      toast(isEdit ? 'Pekerjaan diperbarui' : 'Pekerjaan ditambahkan');
+    }
+  });
+}
+
+function userForm(u){
+  const isEdit = !!u;
+  openModal({
+    title: isEdit ? 'Edit Pengguna' : 'Tambah Pengguna',
+    body: `
+      <label>Nama Lengkap<input name="name" required value="${esc(u?.name || '')}"></label>
+      <div class="row2">
+        <label>Username<input name="username" required value="${esc(u?.username || '')}"></label>
+        <label>Password<input name="password" required value="${esc(u?.password || '')}"></label>
+      </div>
+      <div class="row2">
+        <label>Role<select name="role" required>
+          ${selectOpts(
+            [{id:'admin',name:'Administrator'},{id:'supervisor',name:'Supervisor'},{id:'pekerja',name:'Pekerja'}],
+            u?.role || 'pekerja'
+          )}
+        </select></label>
+        <label>Telepon<input name="phone" value="${esc(u?.phone || '')}"></label>
+      </div>`,
+    onSubmit: data => {
+      const dup = db.users.find(x => x.username.toLowerCase() === data.username.toLowerCase()
+        && (!isEdit || x.id !== u.id));
+      if (dup){ toast('Username sudah dipakai', 'error'); return false; }
+
+      if (isEdit) Object.assign(u, data);
+      else db.users.push({ id: uid('u'), ...data });
+      saveDB(); renderPage();
+      toast(isEdit ? 'Pengguna diperbarui' : 'Pengguna ditambahkan');
+    }
+  });
+}
+
+/* ---------- Input Progress oleh Pekerja ---------- */
+function progressForm(taskId){
+  const u = currentUser();
+  const myTasks = db.tasks.filter(t => t.assigneeId === u.id && latestApproved(t.id) < 100);
+
+  if (!myTasks.length){
+    toast('Tidak ada pekerjaan yang bisa diinput', 'error');
+    return;
+  }
+
+  const options = myTasks.map(t => {
+    const unit = db.units.find(x => x.id === t.unitId);
+    const proj = unit && db.projects.find(p => p.id === unit.projectId);
+    return {
+      id: t.id,
+      name: `${proj ? proj.name + ' • ' : ''}${unit ? unit.code + ' • ' : ''}${t.name} (${latestApproved(t.id)}%)`
+    };
+  });
+
+  const selected = taskId && myTasks.some(t => t.id === taskId) ? taskId : myTasks[0].id;
+
+  openModal({
+    title: 'Input Progress Pekerjaan',
+    wide: true,
+    submitLabel: 'Kirim untuk Verifikasi',
+    body: `
+      <label>Pekerjaan<select name="taskId" required>
+        ${selectOpts(options, selected)}
+      </select></label>
+
+      <div class="row2">
+        <label>Progress (%)<input type="number" name="percent" min="0" max="100" step="1" required></label>
+        <label>Tanggal<div style="padding:11px 12px;background:#f8fafc;border-radius:10px;border:1px solid var(--line);font-weight:600">
+          ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}
+        </div></label>
+      </div>
+
+      <div class="small muted" id="curInfo" style="margin:-6px 0 12px"></div>
+
+      <label>Catatan Pekerjaan
+        <textarea name="notes" rows="3" placeholder="Contoh: Pemasangan bata lantai 1 selesai, siap plester"></textarea>
+      </label>
+
+      <label>Foto Progress (wajib)
+        <input type="file" name="photo" accept="image/*" required>
+      </label>
+      <p class="muted small" style="margin:0">Foto otomatis dikompres sebelum disimpan. Data akan dikirim dan menunggu verifikasi supervisor.</p>`,
+    onMount: ov => {
+      const sel = ov.querySelector('[name=taskId]');
+      const pct = ov.querySelector('[name=percent]');
+      const info = ov.querySelector('#curInfo');
+      const update = () => {
+        const cur = latestApproved(sel.value);
+        pct.min = cur;
+        pct.value = cur;
+        info.textContent = `Progress disetujui saat ini: ${cur}% — input harus antara ${cur}% dan 100%.`;
+      };
+      sel.addEventListener('change', update);
+      update();
+    },
+    onSubmit: async (data, form) => {
+      const file = form.querySelector('[name=photo]').files[0];
+      if (!file){ toast('Foto progress wajib diunggah', 'error'); return false; }
+
+      const taskIdSel = data.taskId;
+      const cur = latestApproved(taskIdSel);
+      const pct = Number(data.percent);
+      if (isNaN(pct) || pct < cur || pct > 100){
+        toast(`Progress harus antara ${cur}% dan 100%`, 'error');
+        return false;
+      }
+
+      let photo = null;
+      try { photo = await compressImage(file); }
+      catch(e){ toast('Gagal memproses foto', 'error'); return false; }
+
+      db.progress.push({
+        id: uid('pg'),
+        taskId: taskIdSel,
+        workerId: currentUser().id,
+        percent: pct,
+        notes: data.notes || '',
+        photo,
+        status: 'submitted',
+        submittedAt: new Date().toISOString(),
+        approvedBy: null,
+        approvedAt: null,
+        rejectionReason: null
+      });
+      saveDB(); renderPage();
+      toast('Progress terkirim, menunggu verifikasi supervisor');
+    }
+  });
+}
+
+/* ---------- Kompres foto ---------- */
+function compressImage(file, maxSize = 720, quality = 0.62){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = e => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        let { width, height } = img;
+        const scale = Math.min(1, maxSize / Math.max(width, height));
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        // watermark sederhana
+        ctx.fillStyle = 'rgba(0,0,0,.45)';
+        ctx.fillRect(0, height - 26, width, 26);
+        ctx.fillStyle = '#fff';
+        ctx.font = '13px sans-serif';
+        ctx.fillText(`DevHouse • ${new Date().toLocaleString('id-ID')}`, 8, height - 8);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---------- Approve / Reject ---------- */
+function approveProgress(id){
+  const p = db.progress.find(x => x.id === id);
+  if (!p) return;
+  p.status = 'approved';
+  p.approvedBy = currentUser().id;
+  p.approvedAt = new Date().toISOString();
+  p.rejectionReason = null;
+  saveDB(); renderPage();
+  toast('Progress disetujui');
+}
+
+function rejectProgress(id){
+  openModal({
+    title: 'Tolak Laporan Progress',
+    submitLabel: 'Tolak Laporan',
+    submitClass: 'danger',
+    body: `<label>Alasan Penolakan
+      <textarea name="reason" rows="3" required
+        placeholder="Contoh: Foto kurang jelas / volume belum sesuai"></textarea>
+    </label>`,
+    onSubmit: data => {
+      const p = db.progress.find(x => x.id === id);
+      if (!p) return;
+      p.status = 'rejected';
+      p.approvedBy = currentUser().id;
+      p.approvedAt = new Date().toISOString();
+      p.rejectionReason = data.reason;
+      saveDB(); renderPage();
+      toast('Laporan progress ditolak');
+    }
+  });
+}
+
+function viewPhoto(id){
+  const p = db.progress.find(x => x.id === id);
+  if (!p || !p.photo){ toast('Tidak ada foto', 'error'); return; }
+  const t = db.tasks.find(x => x.id === p.taskId);
+  openModal({
+    title: 'Foto Progress',
+    wide: true,
+    hideSubmit: true,
+    body: `
+      <img src="${p.photo}" alt="Foto progress"
+           style="width:100%;border-radius:12px;display:block">
+      <div style="margin-top:12px">
+        <strong>${esc(t ? t.name : '—')}</strong>
+        <div class="muted small">${p.percent}% • ${fmtDateTime(p.submittedAt)}</div>
+        ${p.notes ? `<div class="small" style="margin-top:6px">${esc(p.notes)}</div>` : ''}
+      </div>`
+  });
+}
+
+/* =========================================================
+   HAPUS
+   ========================================================= */
+function delProject(id){
+  const p = db.projects.find(x => x.id === id);
+  if (!p) return;
+  const unitIds = db.units.filter(u => u.projectId === id).map(u => u.id);
+  const taskIds = db.tasks.filter(t => unitIds.includes(t.unitId)).map(t => t.id);
+  const progCount = db.progress.filter(pg => taskIds.includes(pg.taskId)).length;
+
+  confirmModal(
+    `Hapus proyek "${p.name}"? ${unitIds.length} unit, ${taskIds.length} pekerjaan, dan ${progCount} data progress akan ikut terhapus.`,
+    () => {
+      db.projects = db.projects.filter(x => x.id !== id);
+      db.units = db.units.filter(u => !unitIds.includes(u.id));
+      db.tasks = db.tasks.filter(t => !taskIds.includes(t.id));
+      db.progress = db.progress.filter(pg => !taskIds.includes(pg.taskId));
+      saveDB(); renderPage(); toast('Proyek dihapus');
+    });
+}
+
+function delUnit(id){
+  const u = db.units.find(x => x.id === id);
+  if (!u) return;
+  const taskIds = db.tasks.filter(t => t.unitId === id).map(t => t.id);
+  confirmModal(`Hapus unit "${u.code}" beserta ${taskIds.length} pekerjaan dan progressnya?`, () => {
+    db.units = db.units.filter(x => x.id !== id);
+    db.tasks = db.tasks.filter(t => t.unitId !== id);
+    db.progress = db.progress.filter(pg => !taskIds.includes(pg.taskId));
+    saveDB(); renderPage(); toast('Unit dihapus');
+  });
+}
+
+function delTask(id){
+  const t = db.tasks.find(x => x.id === id);
+  if (!t) return;
+  confirmModal(`Hapus pekerjaan "${t.name}" beserta riwayat progressnya?`, () => {
+    db.tasks = db.tasks.filter(x => x.id !== id);
+    db.progress = db.progress.filter(pg => pg.taskId !== id);
+    saveDB(); renderPage(); toast('Pekerjaan dihapus');
+  });
+}
+
+function delUser(id){
+  const u = db.users.find(x => x.id === id);
+  if (!u) return;
+  if (u.id === currentUser().id){ toast('Tidak bisa menghapus akun sendiri', 'error'); return; }
+  const jml = db.tasks.filter(t => t.assigneeId === id).length;
+  if (jml){ toast(`Pengguna masih punya ${jml} pekerjaan. Pindahkan dulu tugasnya.`, 'error'); return; }
+  confirmModal(`Hapus pengguna "${u.name}"?`, () => {
+    db.users = db.users.filter(x => x.id !== id);
+    db.progress = db.progress.filter(pg => pg.workerId !== id);
+    saveDB(); renderPage(); toast('Pengguna dihapus');
+  });
+}
+
+function delProgress(id){
+  confirmModal('Hapus data laporan progress ini?', () => {
+    db.progress = db.progress.filter(x => x.id !== id);
+    saveDB(); renderPage(); toast('Data progress dihapus');
+  });
+}
+
+/* =========================================================
+   EVENT DELEGATION
+   ========================================================= */
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]');
+  if (!btn) return;
+  const act = btn.dataset.act;
+  const id = btn.dataset.id;
+
+  switch (act){
+    case 'nav':       currentPage = id; closeSidebar(); renderPage(); break;
+    case 'logout':    logout(); break;
+    case 'toggle-sidebar': $('#sidebar').classList.toggle('open'); break;
+    case 'reset-db':  resetDB(); break;
+
+    case 'add-project':  projectForm(); break;
+    case 'edit-project': projectForm(db.projects.find(x => x.id === id)); break;
+    case 'del-project':  delProject(id); break;
+
+    case 'add-unit':   unitForm(); break;
+    case 'edit-unit':  unitForm(db.units.find(x => x.id === id)); break;
+    case 'del-unit':   delUnit(id); break;
+
+    case 'add-task':   taskForm(); break;
+    case 'edit-task':  taskForm(db.tasks.find(x => x.id === id)); break;
+    case 'del-task':   delTask(id); break;
+
+    case 'input-progress': progressForm(id || null); break;
+    case 'approve':      approveProgress(id); break;
+    case 'reject':       rejectProgress(id); break;
+    case 'view-photo':   viewPhoto(id); break;
+    case 'del-progress': delProgress(id); break;
+
+    case 'add-user':   userForm(); break;
+    case 'edit-user':  userForm(db.users.find(x => x.id === id)); break;
+    case 'del-user':   delUser(id); break;
+  }
+});
+
+document.addEventListener('change', e => {
+  const sel = e.target.closest('[data-filter]');
+  if (!sel) return;
+  ui[sel.dataset.filter] = sel.value;
+  renderPage();
+});
+
+function closeSidebar(){ $('#sidebar').classList.remove('open'); }
+
+function resetDB(){
+  confirmModal('Reset seluruh data demo ke kondisi awal? Semua perubahan akan hilang.', () => {
+    db = seedDB();
+    saveDB();
+    renderPage();
+    toast('Data demo direset');
+  }, 'Ya, Reset');
+}
+
+/* =========================================================
+   BOOTSTRAP
+   ========================================================= */
+(function init(){
+  db = loadDB();
+  if (!db){ db = seedDB(); saveDB(); }
+
+  const saved = sessionStorage.getItem(SESSION_KEY);
+  if (saved && db.users.some(u => u.id === saved)) session = { userId: saved };
+
+  if (session) renderApp();
+  else renderLogin();
+})();
+</script>
+</body>
+</html>
